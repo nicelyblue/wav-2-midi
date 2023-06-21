@@ -41,9 +41,12 @@ class AudioToMIDIConverter:
         _, most_likely_states = self.model.decode(X)
         most_likely_midi_notes = [state_representation.state_to_pitch(state) for state in most_likely_states]
 
-        return most_likely_midi_notes
+        onsets = extractor.extract_note_onsets()
+        velocities = extractor.extract_velocities()
+
+        return most_likely_midi_notes, onsets, velocities
 
     def convert(self, input_audio_file, output_midi_file):
-        most_likely_midi_notes = self.decode(input_audio_file)
-        midi_writer = MIDIWriter(most_likely_midi_notes)
+        most_likely_midi_notes, onsets, velocities = self.decode(input_audio_file)
+        midi_writer = MIDIWriter(most_likely_midi_notes, onsets, velocities)
         midi_writer.save(output_midi_file)
